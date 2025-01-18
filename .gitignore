@@ -4,3 +4,4 @@ venv/
 env/
 blogpost/
 data/pydantic-ai
+.DS_Store

@@ -1,92 +1,107 @@
-# Automated AI Embeddings with PostgreSQL
+````markdown
+# Automated AI Embeddings with PostgreSQL and pgAI
 
-## Introduction
+This project demonstrates how to leverage the pgAI extension for PostgreSQL to efficiently manage and query AI embeddings within your database. By automating the embedding process, we simplify the integration of AI capabilities into your applications. This example uses Ollama to generate embeddings and store them in PostgreSQL.
 
-This guide demonstrates how to use the new PGAI extension from Timescale to build amazing AI applications by moving the hard parts to the database. This project aims to simplify the integration of AI embeddings into your PostgreSQL database, making it easier to manage and query your data.
+## Key Features
+
+* **Automated Embeddings:** pgAI automatically generates and updates embeddings for new or modified data.
+* **Efficient Storage:**  Leverage PostgreSQL's robust data management capabilities for your embeddings.
+* **Simplified Queries:** Easily perform similarity searches and other vector-based queries directly within PostgreSQL.
+* **Scalability:** Benefit from PostgreSQL's scalability to handle large datasets and complex AI applications.
 
 ## Requirements
 
-- Docker
-- PostgreSQL
-- Ollama
-- Python 3.x
-
-## Setting Up a Virtual Environment
-
-1. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   ```
-
-2. **Activate the virtual environment**:
-   - On Windows:
-     ```bash
-     venv\Scripts\activate
-     ```
-   - On macOS/Linux:
-     ```bash
-     source venv/bin/activate
-     ```
-
-3. **Install the required packages**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+* Docker
+* PostgreSQL
+* TimescaleDB
+* pgAI extension
+* Ollama
+* Python 3.x
 
 ## Installation
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/yourproject.git
+   git clone [https://github.com/e-landeros/automated-ai-embeddings.git](https://github.com/e-landeros/automated-ai-embeddings.git)
    cd yourproject
-   ```
+````
 
-2. Build and run the Docker container:
-   ```bash
-   docker-compose up --build
-   ```
+2.  **Build and run the Docker container:**
 
-3. Set up the PostgreSQL database:
-   ```bash
-   # Instructions for setting up the database
-   ```
+    ```bash
+    docker-compose up --build
+    ```
 
-4. Connect to the database 
-docker compose exec -it db psql
+3.  **Connect to the database:**
 
-5. run 01 and 02 sql files in the db_utils folder
+    ```bash
+    docker compose exec -it db psql
+    ```
 
-6. download data into the data folder. 
-git clone https://github.com/pydantic/pydantic-ai.git
-this is just sample data i am downloading th epydantic ai library. 
-we will chunk it up and store it in the database then vectorize it
+4.  **Enable required extensions:**
 
-7. use markdown scraper to clena up the data then chunk it up generate metadata and store it in the dtaabase table
-ye its not processed yet jsut using psyco pg to
+    ```sql
+    CREATE EXTENSION IF NOT EXISTS vector;
+    CREATE EXTENSION IF NOT EXISTS ai CASCADE;
+    ```
 
-8. now run the 03 vectorizer 
-this will create a new tabel usign the vectorizer worker and taake the data from the tbale and generate the embeddings and store it in a new table. the pgai library will do allthe sync automatically and check in for new data/ 
+5.  **Create the documentation table:**
 
-9. so how do we query the databse?
+    ```sql
+    CREATE TABLE documentation (
+        id SERIAL PRIMARY KEY,
+        source_file TEXT,
+        title TEXT,
+        content TEXT,
+        metadata JSONB
+    );
+    ```
 
+6.  **Download sample data:**
 
+    ```bash
+    git clone [https://github.com/pydantic/pydantic-ai.git](https://github.com/pydantic/pydantic-ai.git) data
+    ```
+
+7.  **Process and load data:** (Use the provided scripts to clean, chunk, and load the data into the `documentation` table.)
+
+8.  **Create the vectorizer:**
+
+    ```sql
+    SELECT ai.create_vectorizer(
+        'documentation'::regclass,
+        destination => 'documentation_embeddings',
+        embedding => ai.embedding_ollama('nomic-embed-text', 768),
+        chunking => ai.chunking_recursive_character_text_splitter('content')
+    );
+    ```
+
+9.  **Monitor the vectorizer worker:**
+
+    ```bash
+    docker compose logs -f vectorizer-worker
+    ```
 
 ## Usage
 
-- After setting up the environment, you can start using the PGAI extension by following these steps:
-  1. Connect to your PostgreSQL database.
-  2. Use the provided scripts to create embeddings.
-  3. Query the embeddings as needed.
+**Querying Embeddings:**
+
+```sql
+-- Semantic Search
+SELECT
+    content,
+    embedding <=> ai.ollama_embed('nomic-embed-text', 'what is an agent?', host => 'http://ollama:11434') as distance
+FROM documentation_embeddings
+ORDER BY distance
+LIMIT 5;
+```
 
 ## Contributing
 
-We welcome contributions! Please follow these steps to contribute:
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/YourFeature`).
-3. Make your changes and commit them (`git commit -m 'Add some feature'`).
-4. Push to the branch (`git push origin feature/YourFeature`).
-5. Open a pull request.
+Contributions are welcome\! Feel free to open issues or submit pull requests.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [MIT License](https://www.google.com/url?sa=E&source=gmail&q=LICENSE).
+
