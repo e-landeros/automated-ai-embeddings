@@ -51,6 +51,26 @@ This guide demonstrates how to use the new PGAI extension from Timescale to buil
    # Instructions for setting up the database
    ```
 
+4. Connect to the database 
+docker compose exec -it db psql
+
+5. run 01 and 02 sql files in the db_utils folder
+
+6. download data into the data folder. 
+git clone https://github.com/pydantic/pydantic-ai.git
+this is just sample data i am downloading th epydantic ai library. 
+we will chunk it up and store it in the database then vectorize it
+
+7. use markdown scraper to clena up the data then chunk it up generate metadata and store it in the dtaabase table
+ye its not processed yet jsut using psyco pg to
+
+8. now run the 03 vectorizer 
+this will create a new tabel usign the vectorizer worker and taake the data from the tbale and generate the embeddings and store it in a new table. the pgai library will do allthe sync automatically and check in for new data/ 
+
+9. so how do we query the databse?
+
+
+
 ## Usage
 
 - After setting up the environment, you can start using the PGAI extension by following these steps:

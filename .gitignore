@@ -2,3 +2,5 @@
 .env
 venv/
 env/
+blogpost/
+data/pydantic-ai
