@@ -1,4 +1,4 @@
-````markdown
+
 # Automated AI Embeddings with PostgreSQL and pgAI
 
 This project demonstrates how to leverage the pgAI extension for PostgreSQL to efficiently manage and query AI embeddings within your database. By automating the embedding process, we simplify the integration of AI capabilities into your applications. This example uses Ollama to generate embeddings and store them in PostgreSQL.
